@@ -1,11 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Image, StyleSheet, Text, ImageBackground } from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { Feather as Icon } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import RNPickerSelect from "react-native-picker-select";
+import IBGEService from "../../services/IBGEService";
 
 function Home() {
   const navigation = useNavigation();
+  const [selectedCity, setSelectedCity] = useState("0");
+  const [selectedState, setSelectedState] = useState("0");
+  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [states, setStates] = useState<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    IBGEService.getStates().then((response) =>
+      setStates(
+        response.data.map((s: any) => ({
+          label: `${s.sigla} - ${s.nome}`,
+          value: s.sigla,
+        }))
+      )
+    );
+  }, []);
+
+  function findStateCities(state: string) {
+    if (state !== "0") {
+      IBGEService.getStateCities(state).then((response) => {
+        setCities(
+          response.data.map((city: any) => ({
+            label: city.nome,
+            value: city.nome,
+          }))
+        );
+      });
+    }
+  }
+
+  function handleStateChange(state: string) {
+    setSelectedState(state);
+    findStateCities(state);
+  }
+
+  function handleCityChange(city: string) {
+    setSelectedCity(city);
+  }
 
   return (
     <ImageBackground
@@ -19,6 +58,23 @@ function Home() {
         <Text style={styles.description}>
           Ajudamos pessoas a encontrarem pontos de coleta de forma eficiente.
         </Text>
+      </View>
+
+      <View>
+        <RNPickerSelect
+          style={{ viewContainer: styles.select }}
+          placeholder={{ label: "Selecione um estado", value: "0" }}
+          onValueChange={handleStateChange}
+          value={selectedState}
+          items={states}
+        />
+        <RNPickerSelect
+          style={{ viewContainer: styles.select }}
+          placeholder={{ label: "Selecione uma cidade", value: "0" }}
+          onValueChange={handleCityChange}
+          value={selectedCity}
+          items={cities}
+        />
       </View>
 
       <View style={styles.footer}>
@@ -68,7 +124,12 @@ const styles = StyleSheet.create({
 
   footer: {},
 
-  select: {},
+  select: {
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    marginBottom: 8,
+    padding: 8,
+  },
 
   input: {
     height: 60,

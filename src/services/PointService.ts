@@ -1,5 +1,10 @@
 import api from "./api";
 
-const createPoint = (data: any) => api.post("points", data);
+const getPoints = (params?: any) =>
+  api.get("points", {
+    params,
+  });
 
-export default { createPoint };
+const getPointById = (id: number) => api.get(`points/${id}`);
+
+export default { getPoints, getPointById };
