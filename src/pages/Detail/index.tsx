@@ -17,8 +17,8 @@ import IPoint from "../../models/point";
 import * as MailComposer from "expo-mail-composer";
 
 function Detail() {
-  const navigation = useNavigation();
   const route = useRoute();
+  const navigation = useNavigation();
   const routeParams = route.params as { pointId: number };
   const [selectedPoint, setSelectedPoint] = useState<IPoint>();
 

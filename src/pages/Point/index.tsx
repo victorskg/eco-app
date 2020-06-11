@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Feather as Icon } from "@expo/vector-icons";
 import Constants from "expo-constants";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import { SvgUri } from "react-native-svg";
 import Item from "../../models/item";
@@ -20,6 +20,7 @@ import PointService from "../../services/PointService";
 import * as Location from "expo-location";
 
 function Point() {
+  const route = useRoute();
   const navigation = useNavigation();
   const [items, setItems] = useState<Item[]>([]);
   const [points, setPoints] = useState<IPoint[]>([]);
@@ -28,6 +29,10 @@ function Point() {
     0,
     0,
   ]);
+  const routeParams = route.params as {
+    selectedCity: string;
+    selectedState: string;
+  };
 
   useEffect(() => {
     async function loadPosition() {
@@ -41,14 +46,14 @@ function Point() {
         return;
       }
 
-      // const location = await Location.getCurrentPositionAsync();
-      // const { latitude, longitude } = location.coords;
+      const location = await Location.getCurrentPositionAsync();
+      const { latitude, longitude } = location.coords;
 
-      setInitialPosition([-3.7711143, -38.6005319]);
+      setInitialPosition([latitude, longitude]);
     }
 
     loadPosition().then();
-  });
+  }, []);
 
   useEffect(() => {
     ItemService.getItems().then((response) =>
@@ -64,10 +69,12 @@ function Point() {
   }, []);
 
   useEffect(() => {
-    PointService.getPoints().then((resp) => {
-      setPoints(resp.data);
-    });
-  }, []);
+    PointService.getPoints({
+      city: routeParams.selectedCity,
+      uf: routeParams.selectedState,
+      items: selectedItems,
+    }).then((resp) => setPoints(resp.data));
+  }, [selectedItems]);
 
   function handleItemClick(id: number) {
     if (selectedItems.includes(id)) {

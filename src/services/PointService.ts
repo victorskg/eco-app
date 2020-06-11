@@ -1,6 +1,6 @@
 import api from "./api";
 
-const getPoints = (params?: any) =>
+const getPoints = (params?: { city: string; uf: string; items: number[] }) =>
   api.get("points", {
     params,
   });

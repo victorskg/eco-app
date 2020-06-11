@@ -80,7 +80,12 @@ function Home() {
       <View style={styles.footer}>
         <RectButton
           style={styles.button}
-          onPress={() => navigation.navigate("Point")}
+          onPress={() =>
+            navigation.navigate("Point", {
+              selectedCity,
+              selectedState,
+            })
+          }
         >
           <View style={styles.buttonIcon}>
             <Text>
